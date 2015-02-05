@@ -25,7 +25,7 @@ class RasParser(object):
         rbra = Literal('}').suppress()
         define = Literal('=')
         Ident = Word(alphas.upper(), alphanums + "_")
-        ident = Word(alphanums + "_")
+        ident = Word(alphas.lower(), alphanums + "_")
         pragma = Optional(pound + Literal('language') + colon + 'ras')
         # pseudo uri: /a/s/s/s/s/ or /a/ or /a/s/s/s
         puri = Combine(slash + ident + ZeroOrMore(slash + ident) + Optional(slash))
@@ -38,8 +38,8 @@ class RasParser(object):
         process = ident | loca + lbra + choice + rbra | lpar + choice + rpar
         prefix << Group(process + ZeroOrMore(prefix_op + prefix) )
         choice << Group(prefix + ZeroOrMore(choice_op + prefix))
-        # comm << Group(choice + ZeroOrMore(comm_op + comm ))
-        rmdef = ident + define + loca+ lbra + choice + rbra
+        comm << Group(choice + ZeroOrMore(comm_op + comm ))
+        rmdef = Ident + define + loca+ lbra + comm + rbra
         ras = pragma + rmdef
 
         return ras
@@ -56,4 +56,4 @@ class RasParser(object):
 
 if __name__ == "__main__":
     p = RasParser()
-    p.parse("A=@/x/{a.a.s + s + @/o/{a}}")
+    p.parse("A=@/x/{a.a.s + s + @/o/{a.dd + s.d}}")
